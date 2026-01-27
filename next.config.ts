@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+  async redirects() {
+    return [
+      {
+        source: '/karungali',
+        destination: '/karungali-mala',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,0 +1,15 @@
+import { NavbarUI } from "./NavbarUI";
+import { getSettings } from "@/lib/db";
+
+export async function Navbar() {
+    const settings = await getSettings("store") as any;
+    const menuItems = settings?.menuItems?.length > 0
+        ? settings.menuItems
+        : [
+            { label: "Home", href: "/" },
+            { label: "Products", href: "/products" },
+            { label: "About", href: "/about" },
+        ];
+
+    return <NavbarUI menuItems={menuItems} />;
+}
