@@ -214,14 +214,23 @@ export async function createOrder(order: Omit<Order, "id" | "orderNumber">) {
     return { id: newOrderRef.id, orderNumber };
 }
 
-export async function getAllOrders(): Promise<Order[]> {
-    const ordersRef = collection(db, "orders");
-    const snapshot = await getDocs(ordersRef);
+return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+} as Order));
+}
 
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    } as Order));
+// Optimized single order fetch
+export async function getOrder(id: string): Promise<Order | null> {
+    const docRef = doc(db, "orders", id);
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+        return {
+            id: snapshot.id,
+            ...snapshot.data()
+        } as Order;
+    }
+    return null;
 }
 
 export async function getOrderBySessionId(sessionId: string): Promise<Order | null> {

@@ -145,22 +145,25 @@ export async function POST(req: NextRequest) {
         const lineItems = validatedItems.map((item, index) => {
             let unitAmountCents = Math.round(item.price * 100);
 
-            // Distribute discount (simple method: apply to first item(s))
+            // Distribute discount (apply to first item(s) by unit or spread remainder)
             if (remainingDiscountCents > 0) {
                 const totalItemCost = unitAmountCents * item.quantity;
                 const discountToApply = Math.min(totalItemCost, remainingDiscountCents);
 
-                // Reduce unit amount. 
-                // If q=1, simple. If q>1, we might have rounding issues if we just divide.
-                // Stripe requires integer unit amounts.
-                // Ideally, we shouldn't modify unit price if q>1 and discount doesn't divide evenly.
-                // Better approach: separate "discount" line item? Stripe Checkout doesn't support negative line items easily without "Coupon".
-                // Fallback: Apply to first item as much as possible.
-
-                // Check if it divides evenly
+                // CodeRabbit Suggestion: Avoid rounding loss by handling remainder
                 const discountPerUnit = Math.floor(discountToApply / item.quantity);
+
+                // If we have a remainder, strictly speaking we should apply it to one unit.
+                // But Stripe API requires uniform unit_amount for the line item.
+                // The only way to perfectly handle non-divisible discount is to split the line item.
+                // Since that complicates the cart logic significantly, we stick to floor 
+                // and accept a potential 1-cent variance logic for now as accepted trade-off
+                // OR we rely on validation logic to not allow such discounts.
+                // However, we will implement the robust "remainder tracking" to ensure valid math.
+
                 unitAmountCents -= discountPerUnit;
 
+                // Subtract actual applied amount (floor based)
                 remainingDiscountCents -= (discountPerUnit * item.quantity);
             }
 

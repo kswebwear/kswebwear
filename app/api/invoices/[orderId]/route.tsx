@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InvoiceDocument } from "@/lib/invoice";
-import { getAllOrders } from "@/lib/db";
+import { getAllOrders, getOrder } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-server";
 
 export async function GET(
@@ -14,11 +14,7 @@ export async function GET(
 
         const { orderId } = await params;
 
-        // Get all orders and find the one we need
-        // Note: getAllOrders() is inefficient here, ideally we'd use getOrder(orderId) 
-        // if available, but sticking to existing pattern for now.
-        const orders = await getAllOrders();
-        const order = orders.find(o => o.id === orderId);
+        const order = await getOrder(orderId);
 
         if (!order) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });

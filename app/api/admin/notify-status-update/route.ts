@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllOrders } from "@/lib/db";
+import { getAllOrders, getOrder } from "@/lib/db";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
 import { requireAdmin } from "@/lib/auth-server";
 import Stripe from "stripe";
@@ -15,8 +15,7 @@ export async function POST(req: NextRequest) {
 
         const { orderId, status } = await req.json();
 
-        const orders = await getAllOrders();
-        const order = orders.find(o => o.id === orderId);
+        const order = await getOrder(orderId);
 
         if (!order) {
             return NextResponse.json({ error: "Order not found" }, { status: 404 });
