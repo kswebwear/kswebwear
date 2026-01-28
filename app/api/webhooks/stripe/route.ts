@@ -3,9 +3,10 @@ import Stripe from "stripe";
 import { createOrder } from "@/lib/db";
 import { headers } from "next/headers";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeKey ? new Stripe(stripeKey, {
     apiVersion: "2025-12-15.clover",
-});
+}) : null;
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
         let event: Stripe.Event;
 
         try {
+            if (!stripe) throw new Error("Stripe not initialized (missing key)");
             event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
         } catch (err: any) {
             console.error(`Webhook signature verification failed:`, err.message);
@@ -30,6 +32,7 @@ export async function POST(req: NextRequest) {
             console.log(`Processing completed session: ${session.id}`);
 
             // Retrieve line items
+            if (!stripe) throw new Error("Stripe not initialized");
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
             // Create order in Firestore
