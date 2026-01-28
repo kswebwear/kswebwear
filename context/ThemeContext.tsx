@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getSettings } from "@/lib/db";
 
 type Theme = "dark" | "light";
 
@@ -25,8 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             document.documentElement.className = savedTheme;
         } else {
             // Check system preference if no saved theme
-            const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            const initialTheme = systemPrefersDark ? "dark" : "light";
+            // const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
             // For KSWebWear, we default to dark for the premium feel if no preference
             setTheme("dark");
             document.documentElement.className = "dark";

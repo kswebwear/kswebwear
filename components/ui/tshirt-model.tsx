@@ -1,8 +1,6 @@
-"use client";
-
-import { useRef, Suspense, useState, useEffect } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { OrbitControls, Stage, useGLTF, Decal, ContactShadows, Text, Float } from "@react-three/drei";
+import { Suspense, useState } from "react";
+import { Canvas, useLoader } from "@react-three/fiber";
+import { OrbitControls, Stage, useGLTF, Decal, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
 function Shirt({ designUrl, color }: { designUrl: string; color: string }) {
@@ -30,33 +28,6 @@ function Shirt({ designUrl, color }: { designUrl: string; color: string }) {
                     map={texture}
                 />
             </mesh>
-        </group>
-    );
-}
-
-function FallbackShirt({ color }: { color: string }) {
-    return (
-        <group>
-            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-                <mesh castShadow receiveShadow>
-                    <boxGeometry args={[0.8, 1.2, 0.1]} />
-                    <meshStandardMaterial color={color} roughness={0.3} metalness={0.1} />
-                </mesh>
-                <mesh position={[0, 0, 0.06]}>
-                    <planeGeometry args={[0.5, 0.5]} />
-                    <meshStandardMaterial color="white" transparent opacity={0.1} />
-                </mesh>
-            </Float>
-            <Text
-                position={[0, -0.8, 0]}
-                fontSize={0.05}
-                color="black"
-                font="/fonts/Inter-Bold.woff" // Fallback to system if not found
-                anchorX="center"
-                anchorY="middle"
-            >
-                3D ASSET PENDING
-            </Text>
         </group>
     );
 }

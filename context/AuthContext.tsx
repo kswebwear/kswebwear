@@ -1,11 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 interface AuthContextType {
     user: User | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     profile: any | null; // Typed loosely to avoid circular deps, or import UserProfile
     loading: boolean;
 }
@@ -20,6 +21,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [profile, setProfile] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
 

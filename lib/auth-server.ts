@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { auth } from "@/lib/firebase-admin";
 import { getUserProfile } from "@/lib/db";
-import { UserProfile } from "./types";
 
 
 export async function getServerAuth() {
@@ -20,7 +19,7 @@ export async function getServerAuth() {
         const profile = await getUserProfile(decodedToken.uid);
 
         return { user: decodedToken, profile };
-    } catch (error) {
+    } catch {
         // console.error("Auth verification failed:", error); // Silent fail usually better for auth checks unless debugging
         return { user: null, profile: null };
     }

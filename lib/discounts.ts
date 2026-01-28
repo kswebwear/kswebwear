@@ -6,8 +6,7 @@ import {
     getDocs,
     setDoc,
     query,
-    where,
-    Timestamp
+    where
 } from "firebase/firestore";
 
 export interface Discount {

@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Expand, ShoppingCart, Heart } from "lucide-react";
-import { Button } from "./button";
+import { Expand } from "lucide-react";
 import { Product } from "@/lib/types";
 
 interface DesignCardProps {
