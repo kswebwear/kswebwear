@@ -24,16 +24,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        // Use onIdTokenChanged to handle token refreshes automatically
+        const unsubscribe = auth.onIdTokenChanged(async (firebaseUser) => {
             if (firebaseUser) {
                 setUser(firebaseUser);
+
+                // Set cookie for server-side auth (middleware)
+                const token = await firebaseUser.getIdToken();
+                document.cookie = `firebaseToken=${token}; path=/; max-age=3600; secure; samesite=strict`;
+
                 try {
                     const { createUserProfile, getUserProfile } = await import("@/lib/db");
-                    // Fetch existing profile first
                     let p = await getUserProfile(firebaseUser.uid);
 
                     if (!p) {
-                        // If no profile, create one
                         await createUserProfile({
                             uid: firebaseUser.uid,
                             email: firebaseUser.email,
@@ -51,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
                 setUser(null);
                 setProfile(null);
+                // Clear cookie
+                document.cookie = "firebaseToken=; path=/; max-age=0";
             }
             setLoading(false);
         });

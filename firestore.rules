@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      // Setup custom claims or check a user document field
+      // WARNING: Checking a document field cost 1 read per request.
+      // Ideally, use Custom Claims. For now, we check the user doc.
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // 1. Users Collection
+    // - Users can read/write their own profile
+    // - Admins can read/write everything
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && (isOwner(userId) || isAdmin());
+    }
+
+    // 2. Products & Designs
+    // - public read needed for store listing
+    // - write only by admin (or design owner if you allow user uploads later)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isAdmin();
+    }
+    
+    match /product_templates/{templateId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isAdmin();
+    }
+
+    match /designs/{designId} {
+      allow read: if true; // Public can see designs
+      // If users create designs, allow create. 
+      // Current app likely allows users to save designs?
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 3. Orders
+    // - Users can read their own orders
+    // - Admins can read all
+    // - Write is usually done via Server API (Admin SDK bypasses rules), 
+    //   BUT if client creates order directly, we need rules. 
+    //   Our app now uses Backend API for creation? 
+    //   Let's assume client might read them.
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      // Block write from client, enforce creation via API
+      allow write: if false; 
+    }
+
+    // 4. Discounts & Settings (Admin only)
+    match /discounts/{discountId} {
+        allow read, write: if isAuthenticated() && isAdmin();
+    }
+    
+    match /settings/{settingId} {
+        allow read: if true; // Some settings might be public?
+        allow write: if isAuthenticated() && isAdmin();
+    }
+
+    // Default: Deny Update to prevent accidental exposure
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllOrders } from "@/lib/db";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
+import { requireAdmin } from "@/lib/auth-server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-12-15.clover",
+    apiVersion: "2025-12-15.clover", // Ensure this matches user's types if possible, or keep existing
 });
 
 export async function POST(req: NextRequest) {
     try {
+        // ✅ Require admin authentication
+        await requireAdmin();
+
         const { orderId, status } = await req.json();
 
         const orders = await getAllOrders();
@@ -35,7 +39,10 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error("Notification API error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        // console.error("Notification API error:", error);
+        return NextResponse.json(
+            { error: "Failed to send notification" },
+            { status: error.message === "Unauthorized" ? 401 : (error.message.includes("Forbidden") ? 403 : 500) }
+        );
     }
 }
