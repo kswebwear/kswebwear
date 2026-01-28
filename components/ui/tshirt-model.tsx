@@ -2,39 +2,36 @@
 
 import { useRef, Suspense, useState, useEffect } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { OrbitControls, Stage, useGLTF, Decal, PerspectiveCamera, Environment, ContactShadows, Text, Float } from "@react-three/drei";
+import { OrbitControls, Stage, useGLTF, Decal, ContactShadows, Text, Float } from "@react-three/drei";
 import * as THREE from "three";
 
 function Shirt({ designUrl, color }: { designUrl: string; color: string }) {
     // Model URL - trying a different common one or just handling the failure
     const gltfUrl = "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/t-shirt/model.gltf";
 
-    try {
-        const { nodes, materials } = useGLTF(gltfUrl) as any;
-        const texture = useLoader(THREE.TextureLoader, designUrl);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { nodes, materials } = useGLTF(gltfUrl) as any;
+    const texture = useLoader(THREE.TextureLoader, designUrl);
 
-        return (
-            <group>
-                <mesh
-                    castShadow
-                    receiveShadow
-                    geometry={nodes.T_Shirt_male.geometry}
-                    material={materials.lambert1}
-                    material-color={color}
-                    dispose={null}
-                >
-                    <Decal
-                        position={[0, 0.04, 0.15]}
-                        rotation={[0, 0, 0]}
-                        scale={0.15}
-                        map={texture}
-                    />
-                </mesh>
-            </group>
-        );
-    } catch (e) {
-        return <FallbackShirt color={color} />;
-    }
+    return (
+        <group>
+            <mesh
+                castShadow
+                receiveShadow
+                geometry={nodes.T_Shirt_male.geometry}
+                material={materials.lambert1}
+                material-color={color}
+                dispose={null}
+            >
+                <Decal
+                    position={[0, 0.04, 0.15]}
+                    rotation={[0, 0, 0]}
+                    scale={0.15}
+                    map={texture}
+                />
+            </mesh>
+        </group>
+    );
 }
 
 function FallbackShirt({ color }: { color: string }) {
