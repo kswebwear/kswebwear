@@ -101,10 +101,10 @@ export function NavbarUI({ menuItems }: { menuItems: NavItem[] }) {
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    "text-[10px] font-black uppercase tracking-widest transition-colors hover:text-primary",
+                                    "text-[10px] font-black uppercase tracking-widest transition-colors hover:text-primary [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]",
                                     pathname === item.href
                                         ? "text-primary"
-                                        : "text-muted-foreground"
+                                        : "text-white/90 hover:text-white"
                                 )}
                             >
                                 {item.label}
@@ -197,7 +197,7 @@ export function NavbarUI({ menuItems }: { menuItems: NavItem[] }) {
                         >
                             <ShoppingBag className="h-5 w-5 transition-transform group-hover:scale-110" />
                             {itemsCount > 0 && (
-                                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-white text-primary text-[10px] font-black flex items-center justify-center shadow-lg border-2 border-primary">
+                                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-600 text-white text-[10px] font-black flex items-center justify-center shadow-lg border-2 border-white dark:border-zinc-900">
                                     {itemsCount}
                                 </span>
                             )}

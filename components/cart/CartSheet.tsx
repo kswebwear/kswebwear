@@ -5,10 +5,16 @@ import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function CartSheet() {
     const { items, removeItem, updateQuantity, cartTotal, open, setOpen } = useCart();
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Prevent body scroll when open
     useEffect(() => {
@@ -22,8 +28,8 @@ export function CartSheet() {
         };
     }, [open]);
 
-    // console.log("CartSheet render, open:", open);
-    // if (!open) return null; // Debug: Render always
+    // Avoid hydration mismatch by only rendering after mount
+    if (!mounted) return null;
 
     return (
         <div
@@ -136,7 +142,7 @@ export function CartSheet() {
                             </Link>
                         </div>
                         <div className="mt-6 flex justify-center text-center text-sm text-muted-foreground">
-                            <p>
+                            <span>
                                 or{" "}
                                 <button
                                     type="button"
@@ -146,7 +152,7 @@ export function CartSheet() {
                                     Continue Shopping
                                     <span aria-hidden="true"> &rarr;</span>
                                 </button>
-                            </p>
+                            </span>
                         </div>
                     </div>
                 )}

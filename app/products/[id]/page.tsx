@@ -31,8 +31,8 @@ export default async function ProductPage({
                 basePrice: 29.99,
                 description: "100% Cotton premium feel",
                 category: "apparel",
-                sizes: ["S", "M", "L", "XL", "2XL"],
-                colors: [{ name: "Black", hex: "#000000" }, { name: "White", hex: "#FFFFFF" }, { name: "Navy", hex: "#000080" }],
+                sizes: ["XS", "S", "M", "L", "XL", "2XL"],
+                colors: [{ name: "White", hex: "#FFFFFF" }, { name: "Black", hex: "#000000" }, { name: "Navy", hex: "#000080" }],
                 demographic: "Unisex"
             },
             {
@@ -41,8 +41,8 @@ export default async function ProductPage({
                 basePrice: 24.99,
                 description: "Durable cotton for active kids",
                 category: "apparel",
-                sizes: ["2T", "4T", "6", "8", "10"],
-                colors: [{ name: "Red", hex: "#FF0000" }, { name: "Blue", hex: "#0000FF" }, { name: "Yellow", hex: "#FFFF00" }],
+                sizes: ["XS", "S", "M", "L", "XL"],
+                colors: [{ name: "White", hex: "#FFFFFF" }, { name: "Black", hex: "#000000" }, { name: "Red", hex: "#FF0000" }, { name: "Blue", hex: "#0000FF" }, { name: "Yellow", hex: "#FFFF00" }],
                 demographic: "Kids"
             },
             {
@@ -52,7 +52,7 @@ export default async function ProductPage({
                 description: "Slim fit soft cotton",
                 category: "apparel",
                 sizes: ["XS", "S", "M", "L", "XL"],
-                colors: [{ name: "Pink", hex: "#FFC0CB" }, { name: "White", hex: "#FFFFFF" }, { name: "Black", hex: "#000000" }],
+                colors: [{ name: "White", hex: "#FFFFFF" }, { name: "Black", hex: "#000000" }, { name: "Pink", hex: "#FFC0CB" }],
                 demographic: "Women"
             }
         ];
@@ -130,10 +130,22 @@ export default async function ProductPage({
                     </div>
 
                     <div className="pt-8 space-y-6">
-                        <div className="flex items-baseline gap-4">
-                            <span className="text-5xl font-black tracking-tighter text-primary">
-                                ${product.price.toFixed(2)}
-                            </span>
+                        <div className="flex flex-col gap-1">
+                            {product.compareAtPrice && product.compareAtPrice > product.price && (
+                                <span className="text-xl font-bold text-muted-foreground line-through decoration-red-500/50">
+                                    ${product.compareAtPrice.toFixed(2)}
+                                </span>
+                            )}
+                            <div className="flex items-baseline gap-4">
+                                <span className="text-5xl font-black tracking-tighter text-primary">
+                                    ${product.price.toFixed(2)}
+                                </span>
+                                {product.compareAtPrice && product.compareAtPrice > product.price && (
+                                    <span className="px-3 py-1 bg-red-500/10 text-red-500 text-xs font-bold uppercase tracking-wider rounded-full border border-red-500/20">
+                                        Save ${(product.compareAtPrice - product.price).toFixed(2)}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <ProductActions product={product} />
                     </div>

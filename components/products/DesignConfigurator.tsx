@@ -29,8 +29,16 @@ export function DesignConfigurator({
 
     // Filter templates based on selected demographic
     const filteredTemplates = templates.filter(t => {
-        if (!t.demographic || t.demographic === 'Unisex') return true;
-        return t.demographic === selectedDemographic;
+        // Strict match always included
+        if (t.demographic === selectedDemographic) return true;
+
+        // Include Unisex mainly for Men or if we want it everywhere. 
+        // User requested hiding buttons, so we likely want to exclude Unisex from Women/Kids to reduce count to 1.
+        if (!t.demographic || t.demographic === 'Unisex') {
+            return selectedDemographic === 'Men' || selectedDemographic === 'Infants';
+        }
+
+        return false;
     });
 
     // Auto-select first template when demographic changes if current selection is invalid
@@ -70,7 +78,7 @@ export function DesignConfigurator({
         // Map Design + Template to the expected Product type for the Cart
         addItem({
             id: `${design.id}-${selectedTemplate.id}-${selectedPrintSide}`,
-            name: `${design.title} - ${selectedTemplate.name}`,
+            name: `${design.title} - ${selectedTemplate.name} (${selectedDemographic})`,
             price: design.price || selectedTemplate.basePrice,
             images: [design.mainImage],
             description: design.description,
@@ -135,30 +143,32 @@ export function DesignConfigurator({
                     </AnimatePresence>
                 </div>
 
-                <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                    {filteredTemplates.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => {
-                                setSelectedTemplate(t);
-                                const allowed = t.colors.filter(c => !design.allowedColors || design.allowedColors.length === 0 || design.allowedColors.includes(c.name));
-                                setSelectedColor(allowed[0] || t.colors[0]);
-                                setSelectedSize(t.sizes[0]);
-                            }}
-                            className={`px-6 py-3 rounded-2xl border transition-all whitespace-nowrap font-black uppercase text-[10px] tracking-widest ${selectedTemplate.id === t.id
-                                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
-                                : "bg-card border-white/10 text-muted-foreground hover:border-white/30"
-                                }`}
-                        >
-                            {t.name}
-                        </button>
-                    ))}
-                    {filteredTemplates.length === 0 && (
-                        <div className="text-sm text-muted-foreground italic px-4 py-2">
-                            No styles available for {selectedDemographic}
-                        </div>
-                    )}
-                </div>
+                {filteredTemplates.length > 1 && (
+                    <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                        {filteredTemplates.map(t => (
+                            <button
+                                key={t.id}
+                                onClick={() => {
+                                    setSelectedTemplate(t);
+                                    const allowed = t.colors.filter(c => !design.allowedColors || design.allowedColors.length === 0 || design.allowedColors.includes(c.name));
+                                    setSelectedColor(allowed[0] || t.colors[0]);
+                                    setSelectedSize(t.sizes[0]);
+                                }}
+                                className={`px-6 py-3 rounded-2xl border transition-all whitespace-nowrap font-black uppercase text-[10px] tracking-widest ${selectedTemplate.id === t.id
+                                    ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                                    : "bg-card border-white/10 text-muted-foreground hover:border-white/30"
+                                    }`}
+                            >
+                                {t.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+                {filteredTemplates.length === 0 && (
+                    <div className="text-sm text-muted-foreground italic px-4 py-2">
+                        No styles available for {selectedDemographic}
+                    </div>
+                )}
             </div>
 
             {/* Selection UI */}
@@ -186,8 +196,8 @@ export function DesignConfigurator({
                                     key={demo}
                                     onClick={() => setSelectedDemographic(demo)}
                                     className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${selectedDemographic === demo
-                                            ? "bg-foreground text-background"
-                                            : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                                        ? "bg-foreground text-background"
+                                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
                                         }`}
                                 >
                                     {demo}

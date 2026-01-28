@@ -6,7 +6,7 @@ export const designSchema = z.object({
     mainImage: z.string().url(),
     backImage: z.string().url().nullable().optional(),
     allowedColors: z.array(z.string()).optional(),
-    colorImages: z.record(z.string().url()).optional(),
+    colorImages: z.record(z.string(), z.union([z.string().url(), z.literal("")])).optional(),
     categories: z.array(z.string()),
     tags: z.array(z.string()),
     featured: z.boolean().optional(),

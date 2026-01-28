@@ -44,6 +44,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 console.error("Failed to parse cart", e);
             }
         }
+
+        const handleOpenCart = () => setOpen(true);
+        window.addEventListener('open-cart', handleOpenCart);
+        return () => window.removeEventListener('open-cart', handleOpenCart);
     }, []);
 
     // Save to local storage on change
