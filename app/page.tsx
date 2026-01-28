@@ -3,7 +3,6 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { getSettings } from "@/lib/db";
 
 export default async function Home() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings = await getSettings("store") as any;
 
   return (

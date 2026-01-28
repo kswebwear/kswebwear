@@ -260,10 +260,14 @@ export async function updateOrderStatus(orderId: string, status: Order["status"]
 // --- Settings ---
 
 export async function getSettings(id: string) {
-    const settingsRef = doc(db, "settings", id);
-    const snapshot = await getDoc(settingsRef);
-    if (snapshot.exists()) {
-        return snapshot.data();
+    try {
+        const settingsRef = doc(db, "settings", id);
+        const snapshot = await getDoc(settingsRef);
+        if (snapshot.exists()) {
+            return snapshot.data();
+        }
+    } catch (error) {
+        console.warn(`Error getting settings for ${id}:`, error);
     }
     return null;
 }

@@ -30,7 +30,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings("store") as any;
+  let settings = null;
+  try {
+    settings = await getSettings("store");
+  } catch (error) {
+    console.warn("Failed to fetch store settings during build/render:", error);
+  }
   const gaId = settings?.googleAnalyticsId;
 
   return (
