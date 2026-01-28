@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getProduct, getDesign, getTemplate } from "@/lib/db";
 import { validateDiscount } from "@/lib/discounts";
+import { getServerAuth } from "@/lib/auth-server";
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 
@@ -18,13 +19,27 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { items, userId, discountCode } = await req.json();
+        const { items, discountCode } = await req.json();
+
+        // 🚨 Security Fix 2: Strict Input Validation
+        if (!Array.isArray(items) || items.length === 0) {
+            return NextResponse.json({ error: "Invalid items payload: Must be a non-empty array" }, { status: 400 });
+        }
+
+        // 🚨 Security Fix 1: Do not trust userId from body. Derive from server auth.
+        const { user } = await getServerAuth();
+        const userId = user ? user.uid : "guest";
 
         // 1. Validate Items & Calculate Total Server-Side
         let calculatedTotal = 0;
         const validatedItems = [];
 
         for (const item of items) {
+            // Validate individual item structure
+            if (!item || typeof item.productId !== "string" || !Number.isInteger(item.quantity) || item.quantity <= 0) {
+                return NextResponse.json({ error: "Invalid item: incorrect format or quantity" }, { status: 400 });
+            }
+
             let price = 0;
             let productParams: any = {};
 
@@ -170,7 +185,7 @@ export async function POST(req: NextRequest) {
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
             metadata: {
-                userId: userId || "guest",
+                userId: userId, // ✅ Secured from server auth
                 discountCode: discountCode || "",
                 discountAmount: discountAmount.toString(),
             },
