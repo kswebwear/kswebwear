@@ -32,11 +32,17 @@ try {
   storage = getStorage(app);
 } catch (error) {
   console.warn("Firebase Client Init Error (likely missing env vars):", error);
-  // Mock for build time
-  const crash = () => { throw new Error("Firebase Client not initialized. Check env vars."); };
-  auth = { currentUser: null };
-  db = { type: 'firestore' };
-  storage = {};
+  // Mock for build time or missing env vars
+  const crash = () => { console.error("Firebase not initialized"); return Promise.reject("Firebase not initialized"); };
+  auth = {
+    currentUser: null,
+    onAuthStateChanged: () => () => { }, // no-op unsubscribe
+    onIdTokenChanged: () => () => { },   // no-op unsubscribe
+    signInWithPopup: crash,
+    signOut: crash
+  };
+  db = { type: 'firestore', collection: crash, doc: crash };
+  storage = { ref: crash };
 }
 
 export { app, auth, db, storage };
