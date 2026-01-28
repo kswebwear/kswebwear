@@ -7,7 +7,6 @@ function Shirt({ designUrl, color }: { designUrl: string; color: string }) {
     // Model URL - trying a different common one or just handling the failure
     const gltfUrl = "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/t-shirt/model.gltf";
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { nodes, materials } = useGLTF(gltfUrl) as any;
     const texture = useLoader(THREE.TextureLoader, designUrl);
 

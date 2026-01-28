@@ -11,7 +11,6 @@ export function WhatsAppButton() {
 
     useEffect(() => {
         const fetchSettings = async () => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const data = await getSettings("store") as any;
             if (data?.whatsapp) {
                 setWhatsappNumber(data.whatsapp);

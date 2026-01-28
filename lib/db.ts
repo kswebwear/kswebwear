@@ -268,7 +268,6 @@ export async function getSettings(id: string) {
     return null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateSettings(id: string, data: any) {
     const settingsRef = doc(db, "settings", id);
     await setDoc(settingsRef, data, { merge: true });
