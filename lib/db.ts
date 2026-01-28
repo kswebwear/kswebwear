@@ -49,38 +49,52 @@ export async function updateUserProfile(uid: string, data: Partial<UserProfile>)
 // --- Products ---
 
 export async function getFeaturedProducts(): Promise<Product[]> {
-    const productsRef = collection(db, "products");
-    const q = query(productsRef, where("featured", "==", true), where("inStock", "==", true));
-    const snapshot = await getDocs(q);
+    try {
+        const productsRef = collection(db, "products");
+        const q = query(productsRef, where("featured", "==", true), where("inStock", "==", true));
+        const snapshot = await getDocs(q);
 
-    // Final filter for hidden if it exists on products too (optional but safe)
-    return snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() } as Product))
-        .filter(p => !p.hidden);
+        // Final filter for hidden if it exists on products too (optional but safe)
+        return snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() } as Product))
+            .filter(p => !p.hidden);
+    } catch (error) {
+        console.warn("Error getting featured products:", error);
+        return [];
+    }
 }
 
 export async function getAllProducts(includeHidden = false): Promise<Product[]> {
-    const productsRef = collection(db, "products");
-    const snapshot = await getDocs(productsRef);
+    try {
+        const productsRef = collection(db, "products");
+        const snapshot = await getDocs(productsRef);
 
-    const items = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    } as Product));
+        const items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Product));
 
-    if (includeHidden) return items;
-    return items.filter(p => !p.hidden);
+        if (includeHidden) return items;
+        return items.filter(p => !p.hidden);
+    } catch (error) {
+        console.warn("Error getting all products:", error);
+        return [];
+    }
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
-    const docRef = doc(db, "products", id);
-    const snapshot = await getDoc(docRef);
+    try {
+        const docRef = doc(db, "products", id);
+        const snapshot = await getDoc(docRef);
 
-    if (snapshot.exists()) {
-        return {
-            id: snapshot.id,
-            ...snapshot.data()
-        } as Product;
+        if (snapshot.exists()) {
+            return {
+                id: snapshot.id,
+                ...snapshot.data()
+            } as Product;
+        }
+    } catch (error) {
+        console.warn(`Error getting product ${id}:`, error);
     }
     return null;
 }
@@ -108,31 +122,45 @@ export async function deleteProduct(id: string) {
 // --- Designs ---
 
 export async function getAllDesigns(includeHidden = false): Promise<Design[]> {
-    const designsRef = collection(db, "designs");
-    const snapshot = await getDocs(designsRef);
-    const items = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    } as Design));
+    try {
+        const designsRef = collection(db, "designs");
+        const snapshot = await getDocs(designsRef);
+        const items = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as Design));
 
-    if (includeHidden) return items;
-    return items.filter(d => !d.hidden);
+        if (includeHidden) return items;
+        return items.filter(d => !d.hidden);
+    } catch (error) {
+        console.warn("Error getting all designs:", error);
+        return [];
+    }
 }
 
 export async function getFeaturedDesigns(): Promise<Design[]> {
-    const designsRef = collection(db, "designs");
-    const q = query(designsRef, where("featured", "==", true));
-    const snapshot = await getDocs(q);
-    return snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() } as Design))
-        .filter(d => !d.hidden);
+    try {
+        const designsRef = collection(db, "designs");
+        const q = query(designsRef, where("featured", "==", true));
+        const snapshot = await getDocs(q);
+        return snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() } as Design))
+            .filter(d => !d.hidden);
+    } catch (error) {
+        console.warn("Error getting featured designs:", error);
+        return [];
+    }
 }
 
 export async function getDesign(id: string): Promise<Design | null> {
-    const docRef = doc(db, "designs", id);
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-        return { id: snapshot.id, ...snapshot.data() } as Design;
+    try {
+        const docRef = doc(db, "designs", id);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+            return { id: snapshot.id, ...snapshot.data() } as Design;
+        }
+    } catch (error) {
+        console.warn(`Error getting design ${id}:`, error);
     }
     return null;
 }
@@ -175,19 +203,28 @@ export async function deleteDesign(id: string) {
 // --- Product Templates ---
 
 export async function getAllTemplates(): Promise<ProductTemplate[]> {
-    const templatesRef = collection(db, "product_templates");
-    const snapshot = await getDocs(templatesRef);
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    } as ProductTemplate));
+    try {
+        const templatesRef = collection(db, "product_templates");
+        const snapshot = await getDocs(templatesRef);
+        return snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as ProductTemplate));
+    } catch (error) {
+        console.warn("Error getting all templates:", error);
+        return [];
+    }
 }
 
 export async function getTemplate(id: string): Promise<ProductTemplate | null> {
-    const docRef = doc(db, "product_templates", id);
-    const snapshot = await getDoc(docRef);
-    if (snapshot.exists()) {
-        return { id: snapshot.id, ...snapshot.data() } as ProductTemplate;
+    try {
+        const docRef = doc(db, "product_templates", id);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+            return { id: snapshot.id, ...snapshot.data() } as ProductTemplate;
+        }
+    } catch (error) {
+        console.warn(`Error getting template ${id}:`, error);
     }
     return null;
 }
