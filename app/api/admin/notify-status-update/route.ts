@@ -4,9 +4,10 @@ import { sendOrderStatusUpdateEmail } from "@/lib/email";
 import { requireAdmin } from "@/lib/auth-server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-12-15.clover", // Ensure this matches user's types if possible, or keep existing
-});
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeKey ? new Stripe(stripeKey, {
+    apiVersion: "2025-12-15.clover",
+}) : null;
 
 export async function POST(req: NextRequest) {
     try {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
         // In a real app, store customer email in the Order object!
 
         // Attempting to retrieve stripe session for email
+        if (!stripe) throw new Error("Stripe not initialized");
         const session = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
         const email = session.customer_details?.email;
 

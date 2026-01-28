@@ -1,11 +1,24 @@
 import { Resend } from 'resend';
 import { Order } from './types';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy init wrapper
+const getResend = () => {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+};
+
+// Accessor for use within functions
+const resend = getResend();
 
 export async function sendOrderConfirmationEmail(order: Order, customerEmail: string) {
   console.log(`Sending order confirmation to: ${customerEmail} for order ${order.orderNumber}`);
   try {
+    if (!resend) {
+      console.warn("Resend not initialized - skipping email");
+      return { success: false, error: "Resend not initialized" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'KSWebWear <orders@kswebwear.com.au>', // Use verified domain
       to: [customerEmail],
@@ -105,6 +118,11 @@ export async function sendAdminOrderNotification(order: Order) {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@kswebwear.com.au';
   console.log(`Sending admin notification to: ${adminEmail} for order ${order.orderNumber}`);
   try {
+    if (!resend) {
+      console.warn("Resend not initialized - skipping admin email");
+      return { success: false, error: "Resend not initialized" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'KSWebWear <orders@kswebwear.com.au>', // Use verified domain
       to: [adminEmail],
@@ -138,6 +156,11 @@ export async function sendAdminOrderNotification(order: Order) {
 }
 export async function sendOrderStatusUpdateEmail(order: Order, customerEmail: string) {
   try {
+    if (!resend) {
+      console.warn("Resend not initialized - skipping status email");
+      return { success: false, error: "Resend not initialized" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'KSWebWear <orders@kswebwear.com.au>',
       to: [customerEmail],
